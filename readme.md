@@ -1,20 +1,20 @@
-# 🛡️ Production-Ready Node.js Auth Boilerplate
+# Production-Ready Node.js Auth Boilerplate
 
 A high-performance, scalable authentication system built with **Node.js**, **Express**, and **Redis**. This architecture is specifically engineered to handle high-traffic loads (50k+ users) by utilizing distributed rate limiting and smart caching.
 
 ---
 
-## ✨ Key Features
+## Key Features
 
-* **🚀 Scalable Architecture:** Built for horizontal scaling using a Singleton Redis client.
+* **Scalable Architecture:** Built for horizontal scaling using a Singleton Redis client.
 * **🚦 Rate Limiting:** Global and Strict (OTP/Auth) rate limiting using `rate-limit-redis`.
-* **🧠 Smart Caching:** Profile endpoints cached with Redis (Cache-Aside pattern).
-* **🔒 Security:** JWT-based authentication, password hashing, and CORS protection.
-* **📜 Logging:** Structured logging for monitoring system health and Redis status.
+* **Smart Caching:** Profile endpoints cached with Redis (Cache-Aside pattern).
+* **Security:** JWT-based authentication, password hashing, and CORS protection.
+* **Logging:** Structured logging for monitoring system health and Redis status.
 
 ---
 
-## 🛠️ Prerequisites
+## Prerequisites
 
 Before you begin, ensure you have the following installed:
 
@@ -24,7 +24,7 @@ Before you begin, ensure you have the following installed:
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 ├── client/                     # Frontend application
@@ -55,7 +55,7 @@ Before you begin, ensure you have the following installed:
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 Follow these steps exactly to avoid dependency conflicts:
 
@@ -94,7 +94,7 @@ cp .env.example .env
 
 ---
 
-## ⚙️ Environment Variables
+## Environment Variables
 
 ### Server (`server/.env`)
 
@@ -111,7 +111,7 @@ JWT_EXPIRES_IN="24h"
 
 NODE_ENV ='development'
 
-#user your's credientails
+#use your's credientails
 
 SMTP_USER= 
 SMTP_PASS= 
@@ -148,7 +148,7 @@ The client will be available at `http://localhost:5173` and the API at `http://l
 
 ---
 
-## 🔌 API Endpoints
+## API Endpoints
 
 ### Auth Routes — `/api/auth`
 
@@ -170,7 +170,7 @@ The client will be available at `http://localhost:5173` and the API at `http://l
 
 ---
 
-## 🏗️ Architecture Overview
+## Architecture Overview
 
 ### Redis Rate Limiting Strategy
 
@@ -206,7 +206,7 @@ A single Redis client instance is shared across the entire application — rate 
 
 ---
 
-## 🔒 Security Highlights
+## Security Highlights
 
 * **Passwords** are hashed using `bcryptjs` with a salt round of 12.
 * **JWTs** are short-lived access tokens paired with refresh token rotation.
@@ -218,7 +218,7 @@ A single Redis client instance is shared across the entire application — rate 
 
 
 
-## 📦 Tech Stack
+## Tech Stack
 
 | Layer | Technology |
 |-------|------------|
@@ -233,7 +233,7 @@ A single Redis client instance is shared across the entire application — rate 
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! Please follow these steps:
 
@@ -245,7 +245,7 @@ Contributions are welcome! Please follow these steps:
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
 
