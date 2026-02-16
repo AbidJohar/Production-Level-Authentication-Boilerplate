@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { toast } from "sonner"; // 1. Import from sonner
+import { toast } from "sonner";  
 
 const Login = () => {
   const [state, setState] = useState("Sign Up");

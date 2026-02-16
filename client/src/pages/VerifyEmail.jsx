@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 const VerifyEmail = () => {
     const [otp, setOtp] = useState(new Array(6).fill(""));
@@ -38,10 +38,11 @@ const VerifyEmail = () => {
          setisSubmittingresendOTP(true);
         try {
           const result =  await resendOtp();
-          console.log("result in very mail page:",result);
-
+        //   console.log("result in very mail page:",result);
           if(result.success){
-              toast.info(result.message || "Resend OTP sucessfully");
+              toast.success("OTP required", {
+          description: result.message
+        } );
           }
             
         } catch (error) {

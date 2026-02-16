@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+import { logger } from '../utility/logger.js';
 
 
 dotenv.config();
@@ -12,7 +13,7 @@ try {
 await mongoose.connect(uri, {
 // useNewUrlParser and useUnifiedTopology are default in Mongoose 7+
 });
-console.log('MongoDB connected');
+logger.info('MongoDB connected');
 } catch (err) {
 console.error('MongoDB connection error:', err.message);
 process.exit(1);
