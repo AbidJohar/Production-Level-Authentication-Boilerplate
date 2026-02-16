@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutGrid, Folder, Search, Calendar, ShieldCheck, ArrowLeft, MoreHorizontal } from 'lucide-react';
+import { LayoutGrid, Folder, Search, ShieldCheck, ArrowLeft, MoreHorizontal } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
