@@ -7,7 +7,7 @@ A high-performance, scalable authentication system built with **Node.js**, **Exp
 ## Key Features
 
 * **Scalable Architecture:** Built for horizontal scaling using a Singleton Redis client.
-* **🚦 Rate Limiting:** Global and Strict (OTP/Auth) rate limiting using `rate-limit-redis`.
+* **Rate Limiting:** Global and Strict (OTP/Auth) rate limiting using `rate-limit-redis`.
 * **Smart Caching:** Profile endpoints cached with Redis (Cache-Aside pattern).
 * **Security:** JWT-based authentication, password hashing, and CORS protection.
 * **Logging:** Structured logging for monitoring system health and Redis status.
@@ -24,7 +24,7 @@ Before you begin, ensure you have the following installed:
 
 ---
 
-## Project Structure
+## Project Structure ( AdvancedAuth Branch )
 
 ```
 ├── client/                     # Frontend application
@@ -43,10 +43,12 @@ Before you begin, ensure you have the following installed:
 │   │   ├── middleware/         # Auth, rate-limit, error middleware
 │   │   ├── models/             # Mongoose/DB models
 │   │   ├── routes/             # Express route definitions
+│   │   ├── service/            # Service folder to write the business logic
 │   │   ├── validators/         # For validation of payloads
 │   │   └── utils/              # email templates,redisClient,nodemailer, logger, etc.
 │   ├── .env.example
 │   ├── server.js               # App entry point
+│   ├── app.js                
 │   └── package.json
 │
 ├── .gitignore
