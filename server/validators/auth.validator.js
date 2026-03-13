@@ -44,7 +44,7 @@ export const validate = (schema) => (req, res, next) => {
         }))
       : [{ field: "form", message: "Invalid input data" }];
 
-      console.log(" error message:",errorMessages);
+      // console.log(" error message:",errorMessages);
       
     return res.status(400).json({
       success: false,

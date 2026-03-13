@@ -1,12 +1,14 @@
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import Loader from '../components/Loader.jsx';
 
 // Blocks logged-out users from accessing private pages (e.g. dashboard)
 // If not logged in → redirect to /login
 export const ProtectedRoute = ({ children }) => {
-  const { user} = useAuth();
+  const { user, loading} = useAuth();
 
-
+   if (loading) return null;  
+   
    if(!user) return <Navigate to="/login" replace />
   
    if (!user.isVerified) return <Navigate to="/verify-email" replace />
