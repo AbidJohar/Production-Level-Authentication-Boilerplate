@@ -120,12 +120,17 @@ SMTP_PASS=
 SMTP_HOST= 
 SMTP_PORT= 
 SENDER_EMAIL= 
+
+GOOGLE_CLIENT_SECRET=
+GOOGLE_CLIENT_SECRET
 ```
 
 ### Client (`client/.env`)
 
 ```env
 VITE_API_BASE_URL=http://localhost:5000/api
+
+VITE_GOOGLE_CLIENT_ID=
 ```
 
 ---
@@ -163,6 +168,7 @@ The client will be available at `http://localhost:5173` and the API at `http://l
 | `POST` | `/verify-otp` | Verify OTP code | Strict |
 | `POST` | `/reset-password` | Reset password with OTP | Strict |
 | `POST` | `/resent-otp` | Reset password with OTP | Strict |
+| `POST` | `/google-login` | Login with google | Global |
 
 ### User Routes — `/api/user` *(Protected)*
 

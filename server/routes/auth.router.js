@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import { register, login, logout,refresh, verifyEmail, resendOtp, forgotPassword, resetPassword } from '../controllers/auth.controller.js';
+import { register, login, logout,refresh, verifyEmail,googleLogin, resendOtp, forgotPassword, resetPassword } from '../controllers/auth.controller.js';
 import {validate, authSchemas} from '../validators/auth.validator.js';
 import {authLimiter } from '../middlewares/rateLimit.js';
-import authMiddleware from '../middlewares/auth.middleware.js';
+
 
 
 const router = Router();
@@ -23,5 +23,7 @@ router.post('/reset-password', authLimiter, resetPassword);
 router.post("/refresh", authLimiter, refresh);  
 router.get("/logout", logout);
 
+
+router.post('/google-login', googleLogin);
 
 export default router;

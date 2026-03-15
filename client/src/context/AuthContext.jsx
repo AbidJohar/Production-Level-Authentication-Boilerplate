@@ -195,6 +195,21 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+const googleLogin = async (code) => {
+  try {
+    const res = await API.post("/auth/google-login", { code });
+    if (res.data.success) {
+      setUser(res.data.user);
+      return { success: true, user: res.data.user };
+    }
+  } catch (err) {
+    return {
+      success: false,
+      message: err.response?.data?.message || "Google login failed",
+    };
+  }
+};
+
   const logout = async () => {
     try {
       const res = await API.get("/auth/logout");
@@ -274,6 +289,7 @@ export const AuthProvider = ({ children }) => {
     user,
     loading,
     login,
+    googleLogin,
     signUp,
     logout,
     verifyOtp,

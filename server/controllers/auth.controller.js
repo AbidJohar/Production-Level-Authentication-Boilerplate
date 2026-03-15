@@ -10,6 +10,7 @@ import {
   forgotPasswordService,
   verifyResetOtpService,
   resetPasswordService,
+  googleLoginService
 } from "../service/auth.service.js";
 
 // ─────────────────────────────────────────────────────────────
@@ -73,6 +74,23 @@ export const login = async (req, res) => {
     const result = await loginService(req.body);
 
     if (result.user) await issueTokenCookies(res, result.user);
+
+    return res.status(result.status).json(result.body);
+  } catch (err) {
+    logger.error("Login error:", err.message);
+    return res.status(500).json({ success: false, message: err.message || "Failed to login." });
+  }
+};
+// ─────────────────────────────────────────────────────────────
+//  GOOGLE LOGIN
+// ─────────────────────────────────────────────────────────────
+
+export const googleLogin = async (req, res) => {
+  logger.info("hit the google login endpoint...");
+  try {
+    const result = await googleLoginService(req.body);
+    
+    if(result.user) await issueTokenCookies(res, result.user);
 
     return res.status(result.status).json(result.body);
   } catch (err) {

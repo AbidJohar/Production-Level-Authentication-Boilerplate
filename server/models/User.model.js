@@ -10,13 +10,6 @@ const UserSchema = new mongoose.Schema(
       lowercase: true,
       trim: true,
     },
-    password: { type: String, required: true },
-
-    //  Single OTP System
-    // otp: { type: String, default: "" },
-    // otpExpireAt: { type: Number, default: 0 },
-    // otpType: { type: String, enum: ["VERIFY_EMAIL", "RESET_PASSWORD", null], default: null },
-    //_____(remove fields as Redis will handle OTP)_____
 
     isVerified: { type: Boolean, default: false },
     refreshToken: {

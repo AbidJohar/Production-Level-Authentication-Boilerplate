@@ -1,3 +1,6 @@
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const { google } = require('googleapis');
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/User.model.js";
@@ -5,6 +8,8 @@ import { logger } from "../utility/logger.js";
 import { sendEmail } from "../utility/nodemailer.js";
 import { resendOtpTemplate, verifyEmailTemplate } from "../utility/emailTemplates.js";
 import { storeOtp, verifyOtp, deleteOtp } from "../utility/otp.js";
+import oauth2Client from "../utility/googleClient.js";
+import Identity from '../models/Identity.model.js';
 
 const SALT_ROUNDS = 10;
 
@@ -44,6 +49,7 @@ export const createTokenPair = async (user) => {
 // ─────────────────────────────────────────────────────────────
 
 export const registerService = async ({ name, email, password }) => {
+
     const existing = await User.findOne({ email });
 
     if (existing) {
@@ -76,32 +82,41 @@ export const registerService = async ({ name, email, password }) => {
             };
         }
 
-        // Fully verified — real duplicate
-        return {
-            status: 409,
-            body: { success: false, message: "Email already in use." },
-        };
+
+        // Check if local identity already exists
+        const existingIdentity = await Identity.findOne({
+            userId: existing._id,
+            provider: 'local'
+        });
+
+        if (existingIdentity) {
+            return {
+                status: 409,
+                body: { success: false, message: "Email already in use." },
+            };
+        }
     }
+ 
+
+   // New user — create User first (no password here)
+    const user = await User.create({ name, email });
 
     // New user — hash password and create account
     const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
-    const otp = generateOtp();
-
-
-    //  Only user data goes to MongoDB — no OTP fields at all
-    const user = await User.create({
-        name,
-        email,
+      await Identity.create({
+        userId: user._id,
+        provider: 'local',
         password: hashedPassword,
     });
+    const otp = generateOtp();
 
     //  OTP goes to Redis with auto-expiry TTL
     await storeOtp(user._id, otp, "VERIFY_EMAIL");
     //  console.log("OTP is stored in redis");
-     
+
 
     //  Fire and forget email — response doesn't wait for this
-     sendEmail({
+    sendEmail({
         to: email,
         subject: "Your OTP Code",
         html: verifyEmailTemplate(otp),
@@ -136,7 +151,18 @@ export const loginService = async ({ email, password }) => {
         };
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
+    // Fetch local identity for password
+    const identity = await Identity.findOne({ userId: user._id, provider: 'local' });
+
+    if (!identity) {
+        // User exists but registered via Google — no local identity
+        return {
+            status: 401,
+            body: { success: false, message: "This account uses Google login. Please sign in with Google." },
+        };
+    }
+
+    const isMatch = await bcrypt.compare(password, identity.password);
     if (!isMatch) {
         return { status: 401, body: { success: false, message: "Invalid password." } };
     }
@@ -150,6 +176,84 @@ export const loginService = async ({ email, password }) => {
             user: { name: user.name, email: user.email, isVerified: user.isVerified },
         },
     };
+};
+
+// ─────────────────────────────────────────────────────────────
+//  GOOGLE LOGIN
+// ─────────────────────────────────────────────────────────────
+
+
+export const googleLoginService = async ({ code }) => {
+    try {
+        const { tokens } = await oauth2Client.getToken(code);
+        oauth2Client.setCredentials(tokens);
+
+        const oauth2 = google.oauth2({ version: 'v2', auth: oauth2Client });
+        const { data: userInfo } = await oauth2.userinfo.get();
+
+        console.log("userInfo:",userInfo);
+        
+        
+        // 1. Check if Google identity already exists → returning user
+        const existingIdentity = await Identity.findOne({
+            provider: 'google',
+            providerId: userInfo.id,
+        }).populate('userId');
+        
+        if (existingIdentity) {
+            return {
+                user: existingIdentity.userId,      // populated User doc
+                status: 200,
+                body: {
+                    success: true,
+                    message: "Login successful.",
+                    user: {
+                        name: existingIdentity.userId.name,
+                        email: existingIdentity.userId.email,
+                        isVerified: existingIdentity.userId.isVerified,
+                    },
+                },
+            };
+        }
+        
+        // 2. No Google identity — check if email already exists (local user)
+        let user = await User.findOne({ email: userInfo.email });
+        
+        if (!user) {
+            // 3. Brand new user — create User
+            user = await User.create({
+                name: userInfo.name,
+                email: userInfo.email,
+                isVerified: true,
+            });
+            console.log("userInfo:",user);
+        }
+
+        // 4. Link Google identity to new or existing user
+        await Identity.create({
+            userId: user._id,
+            provider: 'google',
+            providerId: userInfo.id,
+            password: null,
+        });
+
+        return {
+            user,
+            status: 200,
+            body: {
+                success: true,
+                message: "Login successful.",
+                user: { name: user.name, email: user.email, isVerified: user.isVerified },
+            },
+        };
+
+    } catch (err) {
+        console.error("Google login error:", err);
+        return {
+            status: 500,
+            body: { success: false, message: "Internal server error" },
+        };
+    }
 };
 
 // ─────────────────────────────────────────────────────────────
@@ -349,8 +453,15 @@ export const resetPasswordService = async ({ email, newPassword }) => {
         };
     }
 
-    user.password = await bcrypt.hash(newPassword, SALT_ROUNDS);
-    user.refreshToken = null; // Full re-auth required
+    const hashedPassword = await bcrypt.hash(newPassword, SALT_ROUNDS);
+
+    // Update password in Identity, not User
+    await Identity.findOneAndUpdate(
+        { userId: user._id, provider: 'local' },
+        { password: hashedPassword }
+    );
+
+    user.refreshToken = null;
     await user.save();
 
     // Clean up all reset keys
